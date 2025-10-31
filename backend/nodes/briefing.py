@@ -3,7 +3,7 @@ import logging
 import os
 from typing import Any, Dict, List, Union
 
-import google.generativeai as genai
+from openai import AsyncOpenAI
 
 from ..classes import ResearchState
 
@@ -14,13 +14,12 @@ class Briefing:
     
     def __init__(self) -> None:
         self.max_doc_length = 8000  # Maximum document content length
-        self.gemini_key = os.getenv("GEMINI_API_KEY")
-        if not self.gemini_key:
-            raise ValueError("GEMINI_API_KEY environment variable is not set")
-        
-        # Configure Gemini
-        genai.configure(api_key=self.gemini_key)
-        self.gemini_model = genai.GenerativeModel('gemini-2.5-flash')
+        self.openai_key = os.getenv("OPENAI_API_KEY")
+        if not self.openai_key:
+            raise ValueError("OPENAI_API_KEY environment variable is not set")
+
+        # Configure OpenAI
+        self.openai_client = AsyncOpenAI(api_key=self.openai_key)
 
     async def generate_category_briefing(
         self, docs: Union[Dict[str, Any], List[Dict[str, Any]]], 
@@ -171,6 +170,11 @@ Key requirements:
                 break
         
         separator = "\n" + "-" * 40 + "\n"
+        system_prompt = f"""You are an expert research analyst specializing in creating concise and informative briefings based on provided documents.
+Your task is to analyze the documents and extract key information relevant to the specified category.
+Provide clear and structured briefings that adhere to the given format and requirements.
+Do not include any explanations or commentary, only the briefing content.
+"""
         prompt = f"""{prompts.get(category, 'Create a focused, informative and insightful research briefing on the company: {company} in the {industry} industry based on the provided documents.')}
 
 Analyze the following documents and extract key information. Provide only the briefing, no explanations or commentary:
@@ -181,8 +185,23 @@ Analyze the following documents and extract key information. Provide only the br
         
         try:
             logger.info("Sending prompt to LLM")
-            response = self.gemini_model.generate_content(prompt)
-            content = response.text.strip()
+            response = await self.openai_client.chat.completions.create(
+                model="gpt-4.1",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": system_prompt,
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                temperature=0.5,
+                stream=False
+            )
+            content = response.choices[0].message.content.strip()
+
             if not content:
                 logger.error(f"Empty response from LLM for {category} briefing")
                 return {'content': ''}
@@ -243,7 +262,7 @@ Analyze the following documents and extract key information. Provide only the br
         briefing_tasks = []
         for data_field, (cat, briefing_key) in categories.items():
             curated_key = f'curated_{data_field}'
-            curated_data = state.get(curated_key, {})
+            curated_data = state.get(curated_key, {})  # type: ignore
             
             if curated_data:
                 logger.info(f"Processing {data_field} with {len(curated_data)} documents")
@@ -257,7 +276,7 @@ Analyze the following documents and extract key information. Provide only the br
                 })
             else:
                 logger.info(f"No data available for {data_field}")
-                state[briefing_key] = ""
+                state[briefing_key] = ""  # type: ignore
 
         # Process briefings in parallel with rate limiting
         if briefing_tasks:
@@ -275,11 +294,11 @@ Analyze the following documents and extract key information. Provide only the br
                     
                     if result['content']:
                         briefings[task['category']] = result['content']
-                        state[task['briefing_key']] = result['content']
+                        state[task['briefing_key']] = result['content']  # type: ignore
                         logger.info(f"Completed {task['data_field']} briefing ({len(result['content'])} characters)")
                     else:
                         logger.error(f"Failed to generate briefing for {task['data_field']}")
-                        state[task['briefing_key']] = ""
+                        state[task['briefing_key']] = ""  # type: ignore
                     
                     return {
                         'category': task['category'],
