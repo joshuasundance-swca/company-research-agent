@@ -151,8 +151,6 @@ if [ "$setup_env" = true ]; then
     echo -e "\nPlease enter your API keys:"
     echo -n "Tavily API Key: "
     read -r tavily_key
-    echo -n "Google Gemini API Key: "
-    read -r gemini_key
     echo -n "OpenAI API Key: "
     read -r openai_key
     echo -n "MongoDB URI (optional - press enter to skip): "
@@ -161,7 +159,6 @@ if [ "$setup_env" = true ]; then
     # Create .env file
     cat > .env << EOL
 TAVILY_API_KEY=$tavily_key
-GEMINI_API_KEY=$gemini_key
 OPENAI_API_KEY=$openai_key
 EOL
 

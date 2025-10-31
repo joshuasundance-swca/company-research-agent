@@ -22,7 +22,7 @@ https://github.com/user-attachments/assets/0e373146-26a7-4391-b973-224ded3182a9
 - **AI-Powered Content Filtering**: Uses Tavily's relevance scoring for content curation
 - **Real-Time Progress Streaming**: Uses WebSocket connections to stream research progress and results
 - **Dual Model Architecture**:
-  - Gemini 2.0 Flash for high-context research synthesis
+  - ~~Gemini 2.0 Flash~~ for high-context research synthesis
   - GPT-4.1 for precise report formatting and editing
 - **Modern React Frontend**: Responsive UI with real-time updates, progress tracking, and download options
 - **Modular Architecture**: Built using a pipeline of specialized research and processing nodes
@@ -42,7 +42,7 @@ The platform follows an agentic framework with specialized nodes that process da
 2. **Processing Nodes**:
    - `Collector`: Aggregates research data from all analyzers
    - `Curator`: Implements content filtering and relevance scoring
-   - `Briefing`: Generates category-specific summaries using Gemini 2.0 Flash
+   - `Briefing`: Generates category-specific summaries using ~~Gemini 2.0 Flash~~
    - `Editor`: Compiles and formats the briefings into a final report using GPT-4.1-mini
 
    ![web ui](<static/agent-flow.png>)
@@ -51,7 +51,7 @@ The platform follows an agentic framework with specialized nodes that process da
 
 The platform leverages separate models for optimal performance:
 
-1. **Gemini 2.0 Flash** (`briefing.py`):
+1. ~~**Gemini 2.0 Flash**~~ (`briefing.py`):
    - Handles high-context research synthesis tasks
    - Excels at processing and summarizing large volumes of data
    - Used for generating initial category briefings
@@ -67,7 +67,7 @@ The platform leverages separate models for optimal performance:
      - Markdown formatting
      - Real-time report streaming
 
-This approach combines Gemini's strength in handling large context windows with GPT-4.1-mini's precision in following specific formatting instructions.
+This approach combines ~~Gemini~~'s strength in handling large context windows with GPT-4.1-mini's precision in following specific formatting instructions.
 
 ### Content Curation System
 
@@ -159,7 +159,7 @@ The setup script will:
 
 You'll need the following API keys ready:
 - Tavily API Key
-- Google Gemini API Key
+- ~~Google Gemini API Key~~
 - OpenAI API Key
 - Google Maps API Key
 - MongoDB URI (optional)
@@ -209,7 +209,6 @@ Create a `.env` file in the project's root directory and add your backend API ke
 
 ```env
 TAVILY_API_KEY=your_tavily_key
-GEMINI_API_KEY=your_gemini_key
 OPENAI_API_KEY=your_openai_key
 
 # Optional: Enable MongoDB persistence
@@ -252,7 +251,6 @@ Create a `.env` file in the project's root directory with your backend API keys:
 
 ```env
 TAVILY_API_KEY=your_tavily_key
-GEMINI_API_KEY=your_gemini_key
 OPENAI_API_KEY=your_openai_key
 
 # Optional: Enable MongoDB persistence
